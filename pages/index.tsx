@@ -1,8 +1,11 @@
-import { Card, Pagination } from "flowbite-react";
 import { useCallback, useState } from "react";
 import useSWR from "swr";
 
+import { BlogPostList } from "../src/components/BlogPostList";
+
 import { ErrorAlert } from "../src/components/ErrorAlert";
+import { NotFound } from "../src/components/NotFound";
+import { Pagination } from "../src/components/Pagination";
 import { BlogPostCard } from "../src/components/Card";
 import { Search } from "../src/components/Search";
 import { BlogPost, BlogPostsRequestParams, Category } from "../types";
@@ -58,6 +61,7 @@ export default function Home({
     ) as Category[];
 
   const isLoading = !error || isValidating;
+  const showList = data?.posts.length || !isLoading;
 
   return (
     <div className="container mx-auto px-[10rem] py-4">
@@ -70,54 +74,12 @@ export default function Home({
             onChangeCategory={onChangeCategory}
           />
 
-          {data?.posts.length || !isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 justify-items-center mt-10">
-              {data?.posts.map((post) => (
-                <BlogPostCard
-                  key={post.id}
-                  {...post}
-                  categories={getCategoriesListByIds(post.categories)}
-                />
-              ))}
-            </div>
+          {showList ? (
+            <BlogPostList categories={categories} posts={data?.posts || []} />
           ) : (
-            <Card href="#" className="mt-10">
-              <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Nothing found 🤷 <br />
-                <span className="text-base text-right text-gray-500 dark:text-gray-400">
-                  Please, try something else!
-                </span>
-              </h5>
-            </Card>
+            <NotFound />
           )}
-         {!!data?.posts.length && (
-            <div className="flex flex-col items-center justify-center text-center mt-6">
-              <p className="text-sm text-gray-700 dark:text-gray-400">
-                Showing{" "}
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {params.page}
-                </span>{" "}
-                of{" "}
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {data?.totalPages}
-                </span>{" "}
-                pages
-              </p>
-              <Pagination
-                currentPage={params.page}
-                layout="navigation"
-                onPageChange={(page) => {
-                  if (page !== totalPages && params.page !== page) {
-                    window.scrollTo(0, 0);
-                  }
-
-                  setParams((state) => ({ ...state, page }));
-                }}
-                showIcons={true}
-                totalPages={data?.totalPages || 0}
-              />
-            </div>
-          )}
+          <Pagination page={params.page} data={data} setParams={setParams} />
         </>
       )}
       <ErrorAlert error={error} />
