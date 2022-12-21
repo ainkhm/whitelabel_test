@@ -53,7 +53,7 @@ export default function Home({ categories, posts, hasMore }: HomeProps) {
   }, [params]);
 
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto px-[10rem] py-4">
       {!error && (
         <>
           <Search
@@ -83,10 +83,10 @@ export default function Home({ categories, posts, hasMore }: HomeProps) {
               </h5>
             </Card>
           )}
-          <div className="flex mt-8">
-            {params?.page && <Button onClick={onPrev}>Prev</Button>}
+          <div className="flex mt-8 justify-center">
+            {params?.page && <Button style={{marginRight: '1rem' }} onClick={onPrev} >Prev</Button>}
 
-            <Button onClick={onNext} className="ml-3" disabled={!data?.hasMore}>
+            <Button style={{marginLeft: '1rem' }} onClick={onNext} className="ml-3" disabled={!data?.hasMore}>
               Next
             </Button>
           </div>
