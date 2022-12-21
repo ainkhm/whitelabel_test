@@ -45,7 +45,7 @@ export default function Home({ categories, posts, hasMore }: HomeProps) {
     );
 
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto px-[10rem] py-4">
       <Search
         categories={categories}
         selectedCategory={params?.category}
@@ -61,10 +61,10 @@ export default function Home({ categories, posts, hasMore }: HomeProps) {
           <BlogPostCard key={post.id} {...post} />
         ))}
       </div>
-      <div className="flex">
-        {params?.page && <Button onClick={onPrev}>Prev</Button>}
+      <div className="flex justify-center">
+        {params?.page && <Button style={{marginRight: '0.5rem', background: "#343D48"}} onClick={onPrev}>Prev</Button>}
 
-        <Button onClick={onNext} disabled={!data?.hasMore}>
+        <Button style={{marginLeft: '0.5rem', background: "#343D48"}}  onClick={onNext} disabled={!data?.hasMore}>
           Next
         </Button>
       </div>
