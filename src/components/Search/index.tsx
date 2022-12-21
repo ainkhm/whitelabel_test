@@ -1,4 +1,4 @@
-import { Button, Dropdown } from "flowbite-react";
+import { Dropdown } from "flowbite-react";
 import { FC, useRef } from "react";
 import { Category } from "../../../types";
 
@@ -6,7 +6,7 @@ interface SearchProps {
   categories: Category[];
   onChangeCategory: (category: Category) => void;
   onChangeInput: (value: string) => void;
-  selectedCategory: (category: Category) => void;
+  selectedCategory?: Category | null;
 }
 
 export const Search: FC<SearchProps> = ({
@@ -69,9 +69,9 @@ export const Search: FC<SearchProps> = ({
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             ></path>
           </svg>
