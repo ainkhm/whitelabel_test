@@ -13,7 +13,7 @@ export interface BlogPost {
     slug: string;
   }
   
-  export type JSONBlogData = {
+  export type BlogData = {
     posts: BlogPost[];
     categories: Category[];
   };
