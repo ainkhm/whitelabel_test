@@ -6,12 +6,12 @@ import { BlogPost, BlogData } from "../../types";
 const getPaginatedBlogPosts = (data: BlogData, page: number) => {
   const posts = data.posts.slice(
     (page - 1) * POSTS_PER_PAGE,
-    (page - 1) * POSTS_PER_PAGE + 10
+    (page - 1) * POSTS_PER_PAGE + 3
   );
 
   const hasMore = !!data.posts.slice(
     page * POSTS_PER_PAGE,
-    page * POSTS_PER_PAGE + 10
+    page * POSTS_PER_PAGE + 3
   ).length;
 
   return {
