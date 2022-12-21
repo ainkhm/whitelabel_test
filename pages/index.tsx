@@ -1,5 +1,5 @@
-import { Button, Card } from "flowbite-react";
-import { useCallback, useState } from "react";;
+import { Card, Pagination } from "flowbite-react";
+import { useCallback, useState } from "react";
 import useSWR from "swr";
 
 import { ErrorAlert } from "../src/components/ErrorAlert";
@@ -11,66 +11,73 @@ interface HomeProps {
   posts: BlogPost[];
   categories: Category[];
   hasMore: boolean;
+  totalPages: number;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const buildUrlFromParams = (params: BlogPostsRequestParams) =>
   `/api/blog?page=${params?.page}&category=${
-    params?.category?.id || ""
+    (params?.category?.name === "All" ? "" : params?.category?.id) || ""
   }&query=${params?.query || ""}`;
 
 const defaultParams = { page: 1, category: null };
 
-export default function Home({ categories, posts, hasMore }: HomeProps) {
+const ALL_CATEGORY = { id: 0, slug: "All", name: "All" };
 
+export default function Home({
+  categories,
+  posts,
+  hasMore,
+  totalPages,
+}: HomeProps) {
   const [params, setParams] = useState<BlogPostsRequestParams>(defaultParams);
 
-  const { data, error } = useSWR<{ posts: BlogPost[]; hasMore: boolean }>(
-    buildUrlFromParams(params),
-    fetcher,
-    {
-      fallbackData: { posts, hasMore },
-    }
+  const { data, error, isValidating } = useSWR<{
+    posts: BlogPost[];
+    hasMore: boolean;
+    totalPages: number;
+  }>(buildUrlFromParams(params), fetcher, {
+    fallbackData: { posts, hasMore, totalPages },
+  });
+
+  const onChangeInput = useCallback(
+    (value: string) => setParams((state) => ({ ...state, query: value })),
+    []
   );
 
+  const onChangeCategory = useCallback(
+    (category: Category) =>
+      setParams((state) => ({ ...state, page: 1, category })),
+    []
+  );
 
-  const onNext = useCallback(() => {
-    window.scrollTo(0, 0);
-    setParams(
-      params?.page
-        ? { ...params, page: params.page + 1 }
-        : { ...params, page: 2 }
-    );
-  }, [params]);
+  const getCategoriesListByIds = (categoryIds: number[]): Category[] =>
+    categoryIds.map((id) =>
+      categories.find((category) => category.id === id)
+    ) as Category[];
 
-  const onPrev = useCallback(() => {
-    window.scrollTo(0, 0);
-
-    setParams((state) =>
-      params?.page - 1 >= 1 ? { ...params, page: params?.page - 1 } : state
-    );
-  }, [params]);
+  const isLoading = !error || isValidating;
 
   return (
     <div className="container mx-auto px-[10rem] py-4">
       {!error && (
         <>
           <Search
-            categories={categories}
+            categories={[ALL_CATEGORY, ...categories]}
             selectedCategory={params?.category}
-            onChangeInput={(value) =>
-              setParams((state) => ({ ...state, query: value }))
-            }
-            onChangeCategory={(category) =>
-              setParams((state) => ({ ...state, page: 1, category }))
-            }
+            onChangeInput={onChangeInput}
+            onChangeCategory={onChangeCategory}
           />
 
-          {data?.posts.length ? (
+          {data?.posts.length || !isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 justify-items-center mt-10">
               {data?.posts.map((post) => (
-                <BlogPostCard key={post.id} {...post} />
+                <BlogPostCard
+                  key={post.id}
+                  {...post}
+                  categories={getCategoriesListByIds(post.categories)}
+                />
               ))}
             </div>
           ) : (
@@ -83,13 +90,34 @@ export default function Home({ categories, posts, hasMore }: HomeProps) {
               </h5>
             </Card>
           )}
-          <div className="flex mt-8 justify-center">
-            {params?.page && <Button style={{marginRight: '1rem' }} onClick={onPrev} >Prev</Button>}
+         {!!data?.posts.length && !isLoading && (
+            <div className="flex flex-col items-center justify-center text-center mt-6">
+              <p className="text-sm text-gray-700 dark:text-gray-400">
+                Showing{" "}
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {params.page}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {data?.totalPages}
+                </span>{" "}
+                pages
+              </p>
+              <Pagination
+                currentPage={params.page}
+                layout="navigation"
+                onPageChange={(page) => {
+                  if (page !== totalPages && params.page !== page) {
+                    window.scrollTo(0, 0);
+                  }
 
-            <Button style={{marginLeft: '1rem' }} onClick={onNext} className="ml-3" disabled={!data?.hasMore}>
-              Next
-            </Button>
-          </div>
+                  setParams((state) => ({ ...state, page }));
+                }}
+                showIcons={true}
+                totalPages={data?.totalPages || 0}
+              />
+            </div>
+          )}
         </>
       )}
       <ErrorAlert error={error} />
@@ -112,6 +140,7 @@ export async function getServerSideProps() {
       categories,
       posts: posts.posts,
       hasMore: posts.hasMore,
+      totalPages: posts.totalPages,
     },
   };
 }
