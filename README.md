@@ -1,4 +1,4 @@
-# Emersoft hometask
+# White Label hometask
 
 Next.js  blog application.
 
