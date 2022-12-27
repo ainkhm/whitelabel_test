@@ -2,7 +2,7 @@
 
 Next.js  blog application.
 
-<a href="whitelabel-test-ecru.vercel.app" target="_blank">DEMO</a>
+<a href="https://whitelabel-test-ecru.vercel.app" target="_blank">DEMO</a>
 
 ## 🚀 Quick start
 
